@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Soil Texture Calculator & Triangle</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1320;
+      --card: #131c2b;
+      --accent: #7bd389;
+      --text: #e6edf3;
+      --muted: #a6b3c2;
+      --error: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 80% -20%, #1a2740 0%, var(--bg) 50%, #090f1a 100%);
+      color: var(--text);
+    }
+    header { padding: 20px 24px; border-bottom: 1px solid #23324a; }
+    h1 { margin: 0; font-size: 22px; letter-spacing: 0.3px; }
+    .wrap { display: grid; grid-template-columns: 360px 1fr; gap: 20px; padding: 20px; }
+    .card { background: linear-gradient(180deg, #0f1726 0%, var(--card) 100%); border: 1px solid #1e2a40; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+    .panel { padding: 18px; }
+    .row { display: grid; grid-template-columns: 1fr 120px; gap: 12px; align-items: center; margin-bottom: 14px; }
+    label { font-size: 14px; color: var(--muted); }
+    input[type="number"] {
+      width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid #2a3a55; background: #0e1626; color: var(--text);
+    }
+    input[readonly] { opacity: 0.9; }
+    .help { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .good { color: var(--accent); }
+    .bad { color: var(--error); }
+    .btns { display: flex; gap: 10px; margin-top: 10px; }
+    button { padding: 10px 14px; border: 1px solid #2a3a55; background: #0f1726; color: var(--text); border-radius: 12px; cursor: pointer; }
+    button:hover { border-color: #3a567f; }
+    #chart { height: 520px; width: 100%; }
+    .legend { font-size: 13px; color: var(--muted); margin-top: 10px; line-height: 1.4; }
+    .pill { display:inline-block; padding: 3px 8px; border:1px solid #2a3a55; border-radius:999px; margin-right:6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Soil Texture Calculator & Ternary Plot (USDA: Clay–Silt–Sand)</h1>
+  </header>
+
+  <div class="wrap">
+    <!-- Controls -->
+    <div class="card">
+      <div class="panel">
+        <div class="row">
+          <label for="clay">Clay (%)</label>
+          <input id="clay" type="number" min="0" max="100" step="0.1" value="20" />
+        </div>
+        <div class="row">
+          <label for="sand">Sand (%)</label>
+          <input id="sand" type="number" min="0" max="100" step="0.1" value="50" />
+        </div>
+        <div class="row">
+          <label for="silt">Silt (%) (computed)</label>
+          <input id="silt" type="number" step="0.1" value="30" readonly />
+        </div>
+        <div class="help" id="status">Enter clay and sand; silt is 100 − clay − sand.</div>
+        <div class="btns">
+          <button id="snap">Snap to whole %</button>
+          <button id="reset">Reset</button>
+        </div>
+        <div class="legend">
+          <div class="pill">Top vertex: <b>Clay</b></div>
+          <div class="pill">Bottom right: <b>Silt</b></div>
+          <div class="pill">Bottom left: <b>Sand</b></div>
+          <div style="margin-top:8px">Point updates live; ternary axes always sum to 100.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card">
+      <div class="panel" style="padding: 12px 12px 0 12px;">
+        <div id="chart"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Utility ---
+    function clamp(n, min, max) { return Math.min(Math.max(n, min), max); }
+    function fix(n) { return Number.isFinite(n) ? Number(n.toFixed(2)) : 0; }
+
+    const clayEl = document.getElementById('clay');
+    const sandEl = document.getElementById('sand');
+    const siltEl = document.getElementById('silt');
+    const statusEl = document.getElementById('status');
+
+    // Plotly ternary: a=top, b=bottom right, c=bottom left
+    // USDA orientation => a=clay, b=silt, c=sand
+    const layout = {
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      margin: { l: 20, r: 20, b: 20, t: 10 },
+      ternary: {
+        sum: 100,
+        aaxis: { title: { text: 'Clay (%)' }, min: 0, ticksuffix: '%', tickfont: { color: '#a6b3c2' }, titlefont: { color: '#e6edf3' }, gridcolor:'#22324d' },
+        baxis: { title: { text: 'Silt (%)' }, min: 0, ticksuffix: '%', tickfont: { color: '#a6b3c2' }, titlefont: { color: '#e6edf3' }, gridcolor:'#22324d' },
+        caxis: { title: { text: 'Sand (%)' }, min: 0, ticksuffix: '%', tickfont: { color: '#a6b3c2' }, titlefont: { color: '#e6edf3' }, gridcolor:'#22324d' },
+        bgcolor: 'rgba(0,0,0,0)'
+      },
+      showlegend: false
+    };
+
+    let trace = {
+      type: 'scatterternary',
+      mode: 'markers+text',
+      a: [20], // clay
+      b: [30], // silt
+      c: [50], // sand
+      marker: { size: 12 },
+      text: ['Sample'],
+      textposition: 'top center'
+    };
+
+    Plotly.newPlot('chart', [trace], layout, {displayModeBar: true, responsive: true});
+
+    function update() {
+      let clay = parseFloat(clayEl.value);
+      let sand = parseFloat(sandEl.value);
+
+      if (!Number.isFinite(clay)) clay = 0;
+      if (!Number.isFinite(sand)) sand = 0;
+
+      clay = clamp(clay, 0, 100);
+      sand = clamp(sand, 0, 100);
+
+      const silt = 100 - clay - sand;
+      siltEl.value = fix(silt);
+
+      // Validation messages
+      if (clay + sand > 100) {
+        statusEl.textContent = `Invalid: clay + sand = ${fix(clay + sand)}% > 100%. Reduce one or both.`;
+        statusEl.className = 'help bad';
+      } else if (silt < 0) {
+        statusEl.textContent = `Invalid: computed silt is negative (${fix(silt)}%).`;
+        statusEl.className = 'help bad';
+      } else {
+        statusEl.textContent = `OK ✔ Total = ${fix(clay + sand + silt)}% | Silt = 100 − ${fix(clay)} − ${fix(sand)} = ${fix(silt)}%`;
+        statusEl.className = 'help good';
+      }
+
+      // Update plot (only if valid composition)
+      const a = fix(clay), b = fix(Math.max(0, silt)), c = fix(Math.max(0, sand));
+      Plotly.restyle('chart', { a: [[a]], b: [[b]], c: [[c]], text: [[`Clay ${a}%, Silt ${b}%, Sand ${c}%`]] }, [0]);
+    }
+
+    clayEl.addEventListener('input', update);
+    sandEl.addEventListener('input', update);
+
+    document.getElementById('snap').addEventListener('click', () => {
+      clayEl.value = Math.round(parseFloat(clayEl.value || '0'));
+      sandEl.value = Math.round(parseFloat(sandEl.value || '0'));
+      update();
+    });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      clayEl.value = 20; sandEl.value = 50; update();
+    });
+
+    // initial
+    update();
+
+    // Resize handling
+    window.addEventListener('resize', () => Plotly.Plots.resize('chart'));
+  </script>
+</body>
+</html>
