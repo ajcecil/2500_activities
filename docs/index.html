@@ -90,15 +90,15 @@
       margin: { l: 20, r: 20, b: 20, t: 10 },
       ternary: {
         sum: 100,
-        aaxis: { title: { text: 'Clay (%)' }, min: 0, ticksuffix: '%', linecolor: '#874000', gridcolor:'#874000', tickfont: { color: '#874000' }, titlefont: { color: '#874000' } },
-        baxis: { title: { text: 'Silt (%)' }, min: 0, ticksuffix: '%', linecolor: '#00C6FB', gridcolor:'#00C6FB', tickfont: { color: '#00C6FB' }, titlefont: { color: '#00C6FB' } },
-        caxis: { title: { text: 'Sand (%)' }, min: 0, ticksuffix: '%', linecolor: '#D4B22C', gridcolor:'#D4B22C', tickfont: { color: '#D4B22C' }, titlefont: { color: '#D4B22C' } },
+        aaxis: { title: { text: 'Clay (%)' }, min: 0, ticksuffix: '%', linecolor: '#874000', linewidth: 6, gridwidth: 3, dtick: 5, gridcolor:'#874000', tickfont: { color: '#874000' }, titlefont: { color: '#874000' } },
+        baxis: { title: { text: 'Silt (%)' }, min: 0, ticksuffix: '%', linecolor: '#00C6FB', linewidth: 6, gridwidth: 3, dtick: 5, gridcolor:'#00C6FB', tickfont: { color: '#00C6FB' }, titlefont: { color: '#00C6FB' } },
+        caxis: { title: { text: 'Sand (%)' }, min: 0, ticksuffix: '%', linecolor: '#D4B22C', linewidth: 6, gridwidth: 3, dtick: 5, gridcolor:'#D4B22C', tickfont: { color: '#D4B22C' }, titlefont: { color: '#D4B22C' } },
         bgcolor: '#ffffff'
       },
       width: 1400,
       height: 900,
       margin: { l: 100, r: 100, t: 100, b: 100 },
-      showlegend: true
+      showlegend: false
     };
 
     let trace = {
