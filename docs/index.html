@@ -1,167 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Soil Texture Calculator & Triangle</title>
+  <meta charset="UTF-8">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <title>USDA Soil Texture Triangle</title>
   <style>
-    body {
-      margin: 0; font-family: Arial, sans-serif;
-      background: #ffffff;
-      color: #000000;
-    }
-    header { padding: 20px 24px; border-bottom: 1px solid #ccc; }
-    h1 { margin: 0; font-size: 22px; }
-    .wrap { display: grid; grid-template-columns: 360px 1fr; gap: 20px; padding: 20px; }
-    .card { background: #f9f9f9; border: 1px solid #ccc; border-radius: 8px; height: 1600px; }
-    .panel { padding: 18px; }
-    .row { display: grid; grid-template-columns: 1fr 120px; gap: 12px; align-items: center; margin-bottom: 14px; }
-    label { font-size: 14px; color: #333; }
-    input[type="number"] {
-      width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #aaa; background: #fff; color: #000;
-    }
-    input[readonly] { background: #eee; }
-    .help { font-size: 12px; color: #555; margin-top: 6px; }
-    .good { color: green; }
-    .bad { color: red; }
-    .btns { display: flex; gap: 10px; margin-top: 10px; }
-    button { padding: 8px 12px; border: 1px solid #aaa; background: #fff; color: #000; border-radius: 6px; cursor: pointer; }
-    button:hover { background: #eee; }
-    #chart { height: 520px; width: 100%; }
-    .legend { font-size: 13px; color: #444; margin-top: 10px; line-height: 1.4; }
-    .pill { display:inline-block; padding: 3px 8px; border:1px solid #aaa; border-radius:999px; margin-right:6px; }
+    body { margin:0; background:#fff; }
+    #chart { width:100%; height:95vh; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Soil Texture Calculator & Ternary Plot (USDA: Clay–Silt–Sand)</h1>
-  </header>
+<div id="chart"></div>
 
-  <div class="wrap">
-    <!-- Controls -->
-    <div class="card">
-      <div class="panel">
-        <div class="row">
-          <label for="clay">Clay (%)</label>
-          <input id="clay" type="number" min="0" max="100" step="0.1" value="20" />
-        </div>
-        <div class="row">
-          <label for="sand">Sand (%)</label>
-          <input id="sand" type="number" min="0" max="100" step="0.1" value="50" />
-        </div>
-        <div class="row">
-          <label for="silt">Silt (%) (computed)</label>
-          <input id="silt" type="number" step="0.1" value="30" readonly />
-        </div>
-        <div class="help" id="status">Enter clay and sand; silt is 100 − clay − sand.</div>
-        <div class="btns">
-          <button id="snap">Snap to whole %</button>
-          <button id="reset">Reset</button>
-        </div>
-        <div class="legend">
-          <div class="pill">Top vertex: <b>Clay</b></div>
-          <div class="pill">Bottom right: <b>Silt</b></div>
-          <div class="pill">Bottom left: <b>Sand</b></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chart -->
-    <div class="card">
-      <div class="panel" style="padding: 12px 12px 0 12px;">
-        <div id="chart"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function clamp(n, min, max) { return Math.min(Math.max(n, min), max); }
-    function fix(n) { return Number.isFinite(n) ? Number(n.toFixed(2)) : 0; }
-
-    const clayEl = document.getElementById('clay');
-    const sandEl = document.getElementById('sand');
-    const siltEl = document.getElementById('silt');
-    const statusEl = document.getElementById('status');
-
-
-    const layout = {
-      paper_bgcolor: '#ffffff',
-      plot_bgcolor: '#ffffff',
-      margin: { l: 20, r: 20, b: 20, t: 10 },
-      dragmode: false, // turn off zoom
-      ternary: {
-        sum: 100,
-        aaxis: { title: { text: 'Clay' }, min: 0, ticksuffix: '%', linecolor: '#874000', linewidth: 6, gridwidth: 3, dtick: 10, gridcolor:'#874000', tickfont: { color: '#874000' }, titlefont: { color: '#874000' } },
-        baxis: { title: { text: 'Sand' }, min: 0, ticksuffix: '%', linecolor: '#00C6FB', linewidth: 6, gridwidth: 3, dtick: 10, gridcolor:'#00C6FB', tickfont: { color: '#00C6FB' }, titlefont: { color: '#00C6FB' } },
-        caxis: { title: { text: 'Silt' }, min: 0, ticksuffix: '%', linecolor: '#D4B22C', linewidth: 6, gridwidth: 3, dtick: 10, gridcolor:'#D4B22C', tickfont: { color: '#D4B22C' }, titlefont: { color: '#D4B22C' } },
-        bgcolor: '#ffffff'
-      },
-      width: 1400,
-      height: 900,
-      margin: { l: 100, r: 100, t: 100, b: 100 },
-      showlegend: false
-    };
-
-    let trace = {
-      type: 'scatterternary',
-      mode: 'markers',
-      a: [20],
-      b: [30],
-      c: [50],
-      marker: { size: 18, color: 'red' },
-      text: ['Sample'],
-      textposition: 'top center',
-      hovertemplate:
-        'Clay: %{a}<br>' + 
-        'Sand: %{b}<br>' +
-        'Silt: %{c}<br>' +
-        'Texture Class: %{texture}' +
-        '<extra></extra>'
-    };
-
-    Plotly.newPlot('chart', [trace], layout, {displayModeBar: true, responsive: true});
-
-    function update() {
-      let clay = parseFloat(clayEl.value);
-      let sand = parseFloat(sandEl.value);
-      if (!Number.isFinite(clay)) clay = 0;
-      if (!Number.isFinite(sand)) sand = 0;
-      clay = clamp(clay, 0, 100);
-      sand = clamp(sand, 0, 100);
-      const silt = 100 - clay - sand;
-      siltEl.value = fix(silt);
-
-      if (clay + sand > 100) {
-        statusEl.textContent = `Invalid: clay + sand = ${fix(clay + sand)}% > 100%.`;
-        statusEl.className = 'help bad';
-      } else if (silt < 0) {
-        statusEl.textContent = `Invalid: computed silt is negative (${fix(silt)}%).`;
-        statusEl.className = 'help bad';
-      } else {
-        statusEl.textContent = `OK ✔ Total = ${fix(clay + sand + silt)}%`;
-        statusEl.className = 'help good';
-      }
-
-      const a = fix(clay), b = fix(Math.max(0, sand)), c = fix(Math.max(0, silt));
-      Plotly.restyle('chart', { a: [[a]], b: [[b]], c: [[c]] }, [0]);
+<script>
+  // Define USDA polygons (simplified example – fill in with full coords from your R data)
+  const polygons = [
+    {
+      class: "Sand",
+      a: [0, 0, 15, 0], // clay
+      b: [100, 85, 70, 100], // sand
+      c: [0, 15, 15, 0],     // silt
+      color: "rgba(255, 215, 0, 0.3)"
+    },
+    {
+      class: "Clay",
+      a: [40, 45, 55, 40],
+      b: [35, 20, 0, 35],
+      c: [25, 35, 45, 25],
+      color: "rgba(200, 0, 0, 0.3)"
     }
+    // … add all other USDA classes with full coordinates
+  ];
 
-    clayEl.addEventListener('input', update);
-    sandEl.addEventListener('input', update);
+  // Convert polygons into Plotly traces
+  const polygonTraces = polygons.map(poly => ({
+    type: "scatterternary",
+    mode: "lines",
+    a: [...poly.a, poly.a[0]], // close loop
+    b: [...poly.b, poly.b[0]],
+    c: [...poly.c, poly.c[0]],
+    fill: "toself",
+    fillcolor: poly.color,
+    line: { color: "black", width: 1 },
+    name: poly.class,
+    hoverinfo: "skip" // don’t show hover on polygons
+  }));
 
-    document.getElementById('snap').addEventListener('click', () => {
-      clayEl.value = Math.round(parseFloat(clayEl.value || '0'));
-      sandEl.value = Math.round(parseFloat(sandEl.value || '0'));
-      update();
-    });
+  // Sample marker (user input)
+  let clay = 20, sand = 50, silt = 30;
+  let textureClass = "Loam"; // <-- you’d compute this based on clay/sand/silt
 
-    document.getElementById('reset').addEventListener('click', () => {
-      clayEl.value = 20; sandEl.value = 50; update();
-    });
+  const pointTrace = {
+    type: "scatterternary",
+    mode: "markers",
+    a: [clay],
+    b: [sand],
+    c: [silt],
+    marker: { size: 12, color: "red" },
+    hovertemplate:
+      `Clay: %{a}%<br>` +
+      `Sand: %{b}%<br>` +
+      `Silt: %{c}%<br>` +
+      `Texture Class: ${textureClass}<extra></extra>`
+  };
 
-    update();
-    window.addEventListener('resize', () => Plotly.Plots.resize('chart'));
-  </script>
+  const layout = {
+    ternary: {
+      sum: 100,
+      aaxis: { title: "Clay", ticksuffix: "%", min:0 },
+      baxis: { title: "Sand", ticksuffix: "%", min:0 },
+      caxis: { title: "Silt", ticksuffix: "%", min:0 },
+    },
+    showlegend: false
+  };
+
+  Plotly.newPlot("chart", [...polygonTraces, pointTrace], layout);
+</script>
 </body>
 </html>
+
