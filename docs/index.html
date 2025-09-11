@@ -88,11 +88,12 @@
       paper_bgcolor: '#ffffff',
       plot_bgcolor: '#ffffff',
       margin: { l: 20, r: 20, b: 20, t: 10 },
+      dragmode: false, // turn off zoom
       ternary: {
         sum: 100,
-        aaxis: { title: { text: 'Clay (%)' }, min: 0, ticksuffix: '%', linecolor: '#874000', linewidth: 6, gridwidth: 3, dtick: 10, gridcolor:'#874000', tickfont: { color: '#874000' }, titlefont: { color: '#874000' } },
-        baxis: { title: { text: 'Silt (%)' }, min: 0, ticksuffix: '%', linecolor: '#00C6FB', linewidth: 6, gridwidth: 3, dtick: 10, gridcolor:'#00C6FB', tickfont: { color: '#00C6FB' }, titlefont: { color: '#00C6FB' } },
-        caxis: { title: { text: 'Sand (%)' }, min: 0, ticksuffix: '%', linecolor: '#D4B22C', linewidth: 6, gridwidth: 3, dtick: 10, gridcolor:'#D4B22C', tickfont: { color: '#D4B22C' }, titlefont: { color: '#D4B22C' } },
+        aaxis: { title: { text: 'Clay' }, min: 0, ticksuffix: '%', linecolor: '#874000', linewidth: 6, gridwidth: 3, dtick: 10, gridcolor:'#874000', tickfont: { color: '#874000' }, titlefont: { color: '#874000' } },
+        baxis: { title: { text: 'Silt' }, min: 0, ticksuffix: '%', linecolor: '#00C6FB', linewidth: 6, gridwidth: 3, dtick: 10, gridcolor:'#00C6FB', tickfont: { color: '#00C6FB' }, titlefont: { color: '#00C6FB' } },
+        caxis: { title: { text: 'Sand' }, min: 0, ticksuffix: '%', linecolor: '#D4B22C', linewidth: 6, gridwidth: 3, dtick: 10, gridcolor:'#D4B22C', tickfont: { color: '#D4B22C' }, titlefont: { color: '#D4B22C' } },
         bgcolor: '#ffffff'
       },
       width: 1400,
@@ -107,7 +108,7 @@
       a: [20],
       b: [30],
       c: [50],
-      marker: { size: 12, color: 'red' },
+      marker: { size: 24, color: 'red' },
       text: ['Sample'],
       textposition: 'top center'
     };
