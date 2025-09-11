@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <title>USDA Soil Texture Triangle</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     body { margin:0; background:#fff; }
     #chart { width:100%; height:95vh; }
@@ -13,42 +13,39 @@
 <div id="chart"></div>
 
 <script>
-  // Define USDA polygons (simplified example – fill in with full coords from your R data)
+  // USDA soil texture polygons (translated from your R usda_soil_triangles)
   const polygons = [
-    {
-      class: "Sand",
-      a: [0, 0, 15, 0], // clay
-      b: [100, 85, 70, 100], // sand
-      c: [0, 15, 15, 0],     // silt
-      color: "rgba(255, 215, 0, 0.3)"
-    },
-    {
-      class: "Clay",
-      a: [40, 45, 55, 40],
-      b: [35, 20, 0, 35],
-      c: [25, 35, 45, 25],
-      color: "rgba(200, 0, 0, 0.3)"
-    }
-    // … add all other USDA classes with full coordinates
+    { class: "Sand", a:[0,0,15,0], b:[100,85,70,100], c:[0,15,30,0], color:"rgba(255, 223, 128, 0.4)" },
+    { class: "Loamy Sand", a:[0,15,30,0], b:[85,70,52,85], c:[15,15,18,15], color:"rgba(255, 239, 170, 0.4)" },
+    { class: "Sandy Loam", a:[13,20,27,13], b:[70,52,45,70], c:[27,28,28,27], color:"rgba(255, 255, 170, 0.4)" },
+    { class: "Loam", a:[26,20,40,26], b:[37,45,40,37], c:[37,35,20,37], color:"rgba(200, 255, 200, 0.4)" },
+    { class: "Silt Loam", a:[30,20,7,30], b:[15,40,73,15], c:[55,40,20,55], color:"rgba(170, 220, 255, 0.4)" },
+    { class: "Silt", a:[10,0,0,10], b:[10,0,0,10], c:[80,100,100,80], color:"rgba(140, 200, 255, 0.4)" },
+    { class: "Sandy Clay Loam", a:[27,20,35,27], b:[53,45,45,53], c:[20,35,20,20], color:"rgba(255, 200, 150, 0.4)" },
+    { class: "Clay Loam", a:[26,27,40,26], b:[37,20,20,37], c:[37,53,40,37], color:"rgba(230, 180, 150, 0.4)" },
+    { class: "Silty Clay Loam", a:[43,40,20,43], b:[17,20,40,17], c:[40,40,40,40], color:"rgba(200, 180, 220, 0.4)" },
+    { class: "Sandy Clay", a:[35,45,55,35], b:[55,45,20,55], c:[10,10,25,10], color:"rgba(255, 150, 150, 0.4)" },
+    { class: "Silty Clay", a:[45,40,20,45], b:[10,20,40,10], c:[45,40,40,45], color:"rgba(200, 150, 200, 0.4)" },
+    { class: "Clay", a:[40,45,55,40], b:[35,20,0,35], c:[25,35,45,25], color:"rgba(200, 100, 100, 0.4)" }
   ];
 
-  // Convert polygons into Plotly traces
+  // Build polygon traces
   const polygonTraces = polygons.map(poly => ({
     type: "scatterternary",
     mode: "lines",
-    a: [...poly.a, poly.a[0]], // close loop
+    a: [...poly.a, poly.a[0]], // close polygon
     b: [...poly.b, poly.b[0]],
     c: [...poly.c, poly.c[0]],
     fill: "toself",
     fillcolor: poly.color,
     line: { color: "black", width: 1 },
     name: poly.class,
-    hoverinfo: "skip" // don’t show hover on polygons
+    hoverinfo: "skip"
   }));
 
-  // Sample marker (user input)
+  // Example point
   let clay = 20, sand = 50, silt = 30;
-  let textureClass = "Loam"; // <-- you’d compute this based on clay/sand/silt
+  let textureClass = "Loam"; // You could compute this based on rules or polygon membership
 
   const pointTrace = {
     type: "scatterternary",
@@ -64,6 +61,7 @@
       `Texture Class: ${textureClass}<extra></extra>`
   };
 
+  // Layout
   const layout = {
     ternary: {
       sum: 100,
