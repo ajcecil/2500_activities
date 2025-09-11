@@ -111,7 +111,13 @@
       c: [50],
       marker: { size: 18, color: 'red' },
       text: ['Sample'],
-      textposition: 'top center'
+      textposition: 'top center',
+      hovertemplate:
+        'Clay: %{a}%<br>' + 
+        'Sand: %{b}%<br>' +
+        'Silt: %{c}%<br>' +
+        'Texture Class: Loam' +
+        '<extra></extra>'
     };
 
     Plotly.newPlot('chart', [trace], layout, {displayModeBar: true, responsive: true});
