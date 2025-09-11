@@ -128,9 +128,9 @@ Plotly.newPlot('chart',[...polygonTraces,pointTrace],layout);
 
 // USDA rule-based classification (simplified)
 function classify(clay,sand,silt){
-  if(clay>=40 && silt>=40) return "Silty Clay";
-  if(clay>=40 && sand>=45) return "Sandy Clay";
-  if(clay>=40) return "Clay";
+  if(clay>=40 && silt<=40 && silt>=0 && sand>=0 && sand<=45) return "Clay";
+  if(clay>=35 && clay<=55 && sand>=45 && sand<=65 && silt>=0 && silt<=20) return "Sandy Clay";
+  if(clay>=40 && clay<=) return "Silty Clay";
   if(clay>=27 && clay<40 && sand>20 && sand<=45 && silt>15 && silt<=53) return "Clay Loam";
   if(clay>=20 && clay<35 && silt>=28 && silt<50 && sand<=52) return "Silty Clay Loam";
   if(clay>=20 && clay<35 && sand>45 && sand<65 && silt<=28) return "Sandy Clay Loam";
