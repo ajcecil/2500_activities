@@ -85,123 +85,6 @@
     const statusEl = document.getElementById('status');
 
 
-        // Reference: USDA Soil Texture Triangle
-        const soilClasses = [
-      {
-        name: "Clay",
-        color: "rgba(178, 34, 34, 0.5)",
-        a: [40, 100, 100, 40],
-        b: [0, 0, 40, 40],
-        c: [60, 0, 0, 60]
-      },
-      {
-        name: "Silty Clay",
-        color: "rgba(128, 128, 128, 0.5)",
-        a: [40, 60, 40],
-        b: [40, 60, 60],
-        c: [20, 0, 0]
-      },
-      {
-        name: "Sandy Clay",
-        color: "rgba(139, 69, 19, 0.5)",
-        a: [35, 55, 35],
-        b: [0, 20, 20],
-        c: [65, 25, 45]
-      },
-      {
-        name: "Clay Loam",
-        color: "rgba(210, 180, 140, 0.5)",
-        a: [27, 40, 35, 27],
-        b: [27, 40, 27, 27],
-        c: [46, 20, 38, 46]
-      },
-      {
-        name: "Silty Clay Loam",
-        color: "rgba(244, 164, 96, 0.5)",
-        a: [27, 40, 27],
-        b: [40, 40, 73],
-        c: [33, 20, 0]
-      },
-      {
-        name: "Sandy Clay Loam",
-        color: "rgba(154, 205, 50, 0.5)",
-        a: [20, 35, 20],
-        b: [0, 27, 27],
-        c: [80, 38, 53]
-      },
-      {
-        name: "Loam",
-        color: "rgba(222, 184, 135, 0.5)",
-        a: [7, 27, 20, 7],
-        b: [28, 27, 50, 50],
-        c: [65, 46, 30, 43]
-      },
-      {
-        name: "Silt Loam",
-        color: "rgba(205, 133, 63, 0.5)",
-        a: [0, 27, 7, 0],
-        b: [50, 50, 73, 88],
-        c: [50, 23, 20, 12]
-      },
-      {
-        name: "Silt",
-        color: "rgba(176, 196, 222, 0.5)",
-        a: [0, 12, 0],
-        b: [88, 88, 100],
-        c: [12, 0, 0]
-      },
-      {
-        name: "Sandy Loam",
-        color: "rgba(160, 82, 45, 0.5)",
-        a: [0, 20, 7, 0],
-        b: [0, 28, 50, 50],
-        c: [100, 52, 43, 50]
-      },
-      {
-        name: "Loamy Sand",
-        color: "rgba(205, 92, 92, 0.5)",
-        a: [0, 7, 0],
-        b: [0, 0, 15],
-        c: [100, 93, 85]
-      },
-      {
-        name: "Sand",
-        color: "rgba(218, 165, 32, 0.5)",
-        a: [0, 0, 0],
-        b: [0, 15, 0],
-        c: [100, 85, 100]
-      }
-    ];
-
-    // Convert polygons to traces
-    const polygons = soilClasses.map(cls => ({
-      type: "scatterternary",
-      mode: "lines",
-      a: cls.a,
-      b: cls.b,
-      c: cls.c,
-      fill: "toself",
-      fillcolor: cls.color,
-      line: { color: "black", width: 1 },
-      name: cls.name,
-      hoverinfo: "text",
-      text: cls.name,
-      showlegend: true
-    }));
-
-    // Example soil sample point
-    const samplePoint = {
-      type: "scatterternary",
-      mode: "markers+text",
-      a: [20],  // Clay %
-      b: [30],  // Silt %
-      c: [50],  // Sand %
-      marker: { size: 12, color: "red" },
-      text: ["Sample"],
-      textposition: "top center",
-      hoverinfo: "skip"
-    };
-
     const layout = {
       paper_bgcolor: '#ffffff',
       plot_bgcolor: '#ffffff',
@@ -223,9 +106,9 @@
     let trace = {
       type: 'scatterternary',
       mode: 'markers',
-      Clay: [20],
-      Sand: [30],
-      Silt: [50],
+      a: [20],
+      b: [30],
+      c: [50],
       marker: { size: 18, color: 'red' },
       text: ['Sample'],
       textposition: 'top center'
