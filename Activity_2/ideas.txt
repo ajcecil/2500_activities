@@ -1,0 +1,3 @@
+Soil Texture Calculator Options:
+-  https://agricomputing.com/soil-texture-calculator/
+-  https://agritechcenter.com.np/soil-calculator.html
